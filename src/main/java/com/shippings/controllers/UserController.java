@@ -1,23 +1,26 @@
 package com.shippings.controllers;
 
 import com.shippings.model.User;
+import com.shippings.payload.request.EditInfoRequest;
+import com.shippings.payload.response.MessageResponse;
+import com.shippings.security.services.UserDetailsImpl;
 import com.shippings.services.UserService;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     private final UserService service;
 
@@ -26,22 +29,26 @@ public class UserController {
         this.service = service;
     }
 
-    @GetMapping
-    public List<Map<String, String>> getAll() {
-        LOG.info("getAll request is received.");
+    @PatchMapping("/editprofile/{username}")
+    public ResponseEntity<?> editProfile(Authentication authentication,
+                                         @PathVariable String username, @RequestBody EditInfoRequest patch) {
 
-        List<Map<String, String>> userList = new ArrayList();
-        List<User> users = service.getAll();
-        LOG.info(String.format("users.size is %d", users.size()));
-        for (User u : users)
-            userList.add(new HashMap<String, String>(){{put("username", u.getUsername()); put("realname", u.getRealName());}});
-        return userList;
+        if (((UserDetailsImpl) authentication.getPrincipal()).getUsername().equals(username)) {
+
+            User user = service.getByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
+            if (patch.getRealName() != null) {
+                user.setRealName(patch.getRealName());
+            }
+            if (patch.getMobilePhone() != null) {
+                user.setMobilePhone(patch.getMobilePhone());
+            }
+
+            service.save(user);
+            return ResponseEntity.ok(new MessageResponse("Changes saved"));
+        }
+        else
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Access denied"));
     }
-
-    @GetMapping("{id}")
-    public User getOne(@PathVariable Long id) {
-        return new User();
-    }
-
-
 }
