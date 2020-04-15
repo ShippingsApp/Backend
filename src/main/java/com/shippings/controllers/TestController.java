@@ -1,6 +1,5 @@
 package com.shippings.controllers;
 
-import com.shippings.model.User;
 import com.shippings.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,16 +9,12 @@ import com.shippings.repositories.ShippRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -67,6 +62,7 @@ public class TestController {
         LOG.info(String.format("shipp.size is %d", shipps.size()));
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
+                put("id", Long.toString(s.getId()));
                 put("date_start", s.getDateStart().toString());
                 put("date_finish", s.getDateFinish().toString());
                 put("start", s.getStart());
@@ -80,13 +76,6 @@ public class TestController {
             }});
 
         return shippList;
-    }
-
-    @GetMapping("/addRoute")
-    @PreAuthorize("hasAuthority('driver')")
-    public String addRouteAccess(){
-        LOG.info("addRoute");
-        return ";3";
     }
 
 }
