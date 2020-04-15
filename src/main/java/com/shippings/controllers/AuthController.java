@@ -146,5 +146,16 @@ public class AuthController {
         return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
     }
 
+    @PostMapping("/refuseShip")
+    public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
+        LOG.info(String.format("refuse started"));
+        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        ship.setStatus(Boolean.TRUE);
+        shipRepository.save(ship);
+
+        return ResponseEntity.ok(new MessageResponse(" refuse suss "));
+    }
+
+
 }
 
