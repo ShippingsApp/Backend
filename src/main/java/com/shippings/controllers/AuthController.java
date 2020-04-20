@@ -92,9 +92,9 @@ public class AuthController {
     // Все нижеследующее должно быть венесено в отдельный блок !!!
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
-    @Autowired
+   @Autowired
     ShippRepository shipRepository;
-    @PostMapping("/routeup")
+   /*  @PostMapping("/routeup")
     public ResponseEntity<?> addRouter(@RequestBody AddRoutRequest AddRequest) {
         LOG.info(String.format("shipp adding started"));
 
@@ -117,44 +117,44 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("Ship added successfully!"));
     }
-
+*/
  /*   long getCurrentUserId() {
         UserDetailsImpl user = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return user.getId();
     }*/
-
-    @PostMapping("/routedit")
-    public ResponseEntity<?> editRouter(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("shipp editing started"));
-
-        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        LOG.info(String.format("ship id"+ship.getId()));
-        if(!AddRequest.getDateStart().trim().isEmpty()){ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));}
-        if(!AddRequest.getDateFinish().trim().isEmpty()){ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));}
-        if(!AddRequest.getStart().trim().isEmpty()){ship.setStart(AddRequest.getStart());}
-        if(!AddRequest.getFinish().trim().isEmpty()){ship.setFinish(AddRequest.getFinish());}
-        if(!AddRequest.getWeight().trim().isEmpty()){ship.setWeight(Integer.parseInt(AddRequest.getWeight()));}
-        if(!AddRequest.getHeight().trim().isEmpty()){ship.setHeight(Integer.parseInt(AddRequest.getHeight()));}
-        if(!AddRequest.getLength().trim().isEmpty()){ship.setLength(Integer.parseInt(AddRequest.getLength()));}
-        if(!AddRequest.getWidth().trim().isEmpty()){ship.setWidth(Integer.parseInt(AddRequest.getWidth()));}
-        if(!AddRequest.getPlusTime().trim().isEmpty()){ship.setPlusTime(Integer.parseInt(AddRequest.getPlusTime()));}
-        if(!AddRequest.getComment().trim().isEmpty()){ship.setComment(AddRequest.getComment());}
-        //ship.setDriverId(this.getCurrentUserId());
-        LOG.info(String.format("shipp edited"));
-        shipRepository.save(ship);
-
-        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
-    }
-
-    @PostMapping("/refuseShip")
-    public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("refuse started"));
-        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        ship.setStatus(Boolean.TRUE);
-        shipRepository.save(ship);
-
-        return ResponseEntity.ok(new MessageResponse(" refuse suss "));
-    }
+//
+//    @PostMapping("/routedit")
+//    public ResponseEntity<?> editRouter(@RequestBody AddRoutRequest AddRequest) {
+//        LOG.info(String.format("shipp editing started"));
+//
+//        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+//        LOG.info(String.format("ship id"+ship.getId()));
+//        if(!AddRequest.getDateStart().trim().isEmpty()){ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));}
+//        if(!AddRequest.getDateFinish().trim().isEmpty()){ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));}
+//        if(!AddRequest.getStart().trim().isEmpty()){ship.setStart(AddRequest.getStart());}
+//        if(!AddRequest.getFinish().trim().isEmpty()){ship.setFinish(AddRequest.getFinish());}
+//        if(!AddRequest.getWeight().trim().isEmpty()){ship.setWeight(Integer.parseInt(AddRequest.getWeight()));}
+//        if(!AddRequest.getHeight().trim().isEmpty()){ship.setHeight(Integer.parseInt(AddRequest.getHeight()));}
+//        if(!AddRequest.getLength().trim().isEmpty()){ship.setLength(Integer.parseInt(AddRequest.getLength()));}
+//        if(!AddRequest.getWidth().trim().isEmpty()){ship.setWidth(Integer.parseInt(AddRequest.getWidth()));}
+//        if(!AddRequest.getPlusTime().trim().isEmpty()){ship.setPlusTime(Integer.parseInt(AddRequest.getPlusTime()));}
+//        if(!AddRequest.getComment().trim().isEmpty()){ship.setComment(AddRequest.getComment());}
+//        //ship.setDriverId(this.getCurrentUserId());
+//        LOG.info(String.format("shipp edited"));
+//        shipRepository.save(ship);
+//
+//        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
+//    }
+//
+//    @PostMapping("/refuseShip")
+//    public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
+//        LOG.info(String.format("refuse started"));
+//        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+//        ship.setStatus(Boolean.TRUE);
+//        shipRepository.save(ship);
+//
+//        return ResponseEntity.ok(new MessageResponse(" refuse suss "));
+//    }
 
 
 }
