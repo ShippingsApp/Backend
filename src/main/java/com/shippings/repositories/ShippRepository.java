@@ -9,6 +9,7 @@ import java.util.List;
 @Repository
 public interface ShippRepository extends JpaRepository<Shipping, Long> {
     List<Shipping> findAllByDriverIdAndStatusOrderByDateStartDesc(Long driverId, Boolean bool);
+
     Shipping findOneById(Long ID);
 
 }

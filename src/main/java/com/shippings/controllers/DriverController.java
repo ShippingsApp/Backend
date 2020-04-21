@@ -3,7 +3,7 @@ package com.shippings.controllers;
 import com.shippings.model.Shipping;
 import com.shippings.payload.request.AddRoutRequest;
 import com.shippings.payload.response.MessageResponse;
-import com.shippings.repositories.ShippRepository;
+import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +14,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -27,29 +25,69 @@ public class DriverController {
     private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
     @Autowired
     ShippRepository shipRepository;
-    
+
     long getCurrentUserId() {
         UserDetailsImpl user = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();;
         return user.getId();
     }
 
+    public static final int REQUEST=0;
+    public static final int PAST=1;
+    public static final int PRESENT=2;
+    public static final int FUTURE=3;
+
     @GetMapping("/driver")
     @PreAuthorize("hasAuthority('driver')")
-    public List<Map<String, String>> driverAccess(){
+    public List<Map<String, String>> driverAccess(Integer time_per){
         LOG.info("driver request is received");
-        return getRouteList(Boolean.TRUE);
+        return getRouteList(Boolean.TRUE, time_per);
     }
 
     @GetMapping("/driverRequest")
     @PreAuthorize("hasAuthority('driver')")
     public List<Map<String, String>> driverRequestAccess() {
         LOG.info("driver request request is received.");
-       return getRouteList(Boolean.FALSE);
+       return getRouteList(Boolean.FALSE, REQUEST);
     }
 
-    List<Map<String, String>> getRouteList(Boolean bool){
+    List<Map<String, String>> getRouteList(Boolean bool, int time_per){
         List<Map<String, String>> shippList = new ArrayList();
         List<Shipping> shipps = shipRepository.findAllByDriverIdAndStatusOrderByDateStartDesc(this.getCurrentUserId(), bool);
+
+        switch(time_per){
+            case(FUTURE):
+                for (Iterator<Shipping> iter = shipps.listIterator(); iter.hasNext(); ) {
+                    Shipping a = iter.next();
+                    if ((new java.util.Date(a.getDateStart().getTime()).before(new java.util.Date()))){
+                        iter.remove();
+                    }
+                }
+                break;
+            case(PRESENT):
+                for (Iterator<Shipping> iter = shipps.listIterator(); iter.hasNext(); ) {
+                    Shipping a = iter.next();
+                    if (new java.util.Date(a.getDateFinish().getTime()).before(new java.util.Date())) {
+                        iter.remove();
+                    }
+                    else{
+                        if (new java.util.Date(a.getDateStart().getTime()).after(new java.util.Date())){
+                            iter.remove();
+                        }
+                    }
+                }
+                break;
+            case(PAST):
+                for (Iterator<Shipping> iter = shipps.listIterator(); iter.hasNext(); ) {
+                    Shipping a = iter.next();
+                    if ((new java.util.Date(a.getDateFinish().getTime()).after(new java.util.Date()))) {
+                        iter.remove();
+                    }
+                }
+                break;
+            case(REQUEST):
+                break;
+        }
+
         LOG.info(String.format("shipp.size is %d", shipps.size()));
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
@@ -132,5 +170,12 @@ public class DriverController {
         shipRepository.save(ship);
 
         return ResponseEntity.ok(new MessageResponse(" refuse suss "));
+    }
+
+    @PostMapping("/deleteShip")
+    public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
+        LOG.info(String.format("delete started"));
+        shipRepository.delete(shipRepository.getOne(Long.parseLong(AddRequest.getId())));
+        return ResponseEntity.ok(new MessageResponse(" delete suss "));
     }
 }

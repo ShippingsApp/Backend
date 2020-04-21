@@ -3,22 +3,22 @@ package com.shippings.model;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.sql.Date;
-import java.util.zip.ZipEntry;
 
 @Entity
-@Table(name = "shippings")
+@Table(name = "requests")
 @Data
-public class Shipping {
-
+public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "id")
     private long id;
 
-    @Column(name = "driver_id")
-    private long driverId;
+    @Column(name = "shipping_id")
+    private long shippingId;
+
+    @Column(name = "user_from_id")
+    private long userFromId;
 
     @Column(name = "start")
     private String start;
@@ -38,20 +38,14 @@ public class Shipping {
     @Column(name = "width")
     private int width;
 
-    @Column(name = "plus_time")
-    private int plusTime;
+    @Column(name = "comment")
+    private String comment;
 
     @Column(name = "status")
     private boolean status;
 
-    @Column(name = "comment")
-    private String comment;
-
-    @Column(name = "date_start")
-    private Date dateStart;
-
-    @Column(name = "date_finish")
-    private Date dateFinish;
+    @Column(name = "price")
+    private int price;
 
     public long getId() {
         return id;
@@ -59,11 +53,17 @@ public class Shipping {
     public void setId(long id) {
         this.id = id;
     }
-    public long getDriverId() {
-        return driverId;
+    public long getShippingId() {
+        return shippingId;
     }
-    public void setDriverId(long driverId) {
-        this.driverId = driverId;
+    public void setShippingId(long id) {
+        this.shippingId = id;
+    }
+    public long getUserFromId() {
+        return userFromId;
+    }
+    public void setUserFromId(long id) {
+        this.userFromId = id;
     }
     public String getStart() {
         return start;
@@ -101,12 +101,6 @@ public class Shipping {
     public void setWidth(int width) {
         this.width = width;
     }
-    public int getPlusTime() {
-        return plusTime;
-    }
-    public void setPlusTime(int plusTime) {
-        this.plusTime = plusTime;
-    }
     public boolean isStatus() {
         return status;
     }
@@ -118,17 +112,5 @@ public class Shipping {
     }
     public void setComment(String comment) {
         this.comment = comment;
-    }
-    public Date getDateStart() {
-        return dateStart;
-    }
-    public void setDateStart(Date dateStart) {
-        this.dateStart = dateStart;
-    }
-    public Date getDateFinish() {
-        return dateFinish;
-    }
-    public void setDateFinish(Date dateFinish) {
-        this.dateFinish = dateFinish;
     }
 }
