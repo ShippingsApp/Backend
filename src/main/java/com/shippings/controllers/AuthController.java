@@ -1,13 +1,16 @@
 package com.shippings.controllers;
 
+import com.shippings.model.Shipping;
 import com.shippings.model.User;
-import com.shippings.payload.request.LoginRequest;
-import com.shippings.payload.request.SignupRequest;
+import com.shippings.payload.request.*;
 import com.shippings.payload.response.JwtResponse;
 import com.shippings.payload.response.MessageResponse;
+import com.shippings.repositories.ShippRepository;
 import com.shippings.repositories.UserRepository;
 import com.shippings.security.jwt.JwtUtils;
 import com.shippings.security.services.UserDetailsImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -82,4 +87,37 @@ public class AuthController {
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+
+    @Autowired
+    ShippRepository shipRepository;
+    @PostMapping("/routeup")
+    public ResponseEntity<?> addRouter(@RequestBody AddRoutRequest AddRequest) {
+        LOG.info(String.format("shipp adding started"));
+
+        Shipping ship = new Shipping();
+        ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));
+        ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));
+        ship.setStart(AddRequest.getStart());
+        ship.setFinish(AddRequest.getFinish());
+        ship.setWeight(Integer.parseInt(AddRequest.getWeight()));
+        ship.setHeight(Integer.parseInt(AddRequest.getHeight()));
+        ship.setLength(Integer.parseInt(AddRequest.getLength()));
+        ship.setWidth(Integer.parseInt(AddRequest.getWidth()));
+        ship.setPlusTime(Integer.parseInt(AddRequest.getPlusTime()));
+        ship.setComment(AddRequest.getComment());
+        ship.setStatus(Boolean.TRUE);
+        //ship.setDriverId(this.getCurrentUserId());
+        ship.setDriverId((long)1);
+        LOG.info(String.format("shipp added"));
+        shipRepository.save(ship);
+
+        return ResponseEntity.ok(new MessageResponse("Ship added successfully!"));
+    }
+ /*   long getCurrentUserId() {
+        UserDetailsImpl user = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return user.getId();
+    }*/
 }
+
