@@ -113,4 +113,10 @@ public class Request {
     public void setComment(String comment) {
         this.comment = comment;
     }
+    public int getPrice() {
+        return price;
+    }
+    public void setPrice(int price) {
+        this.price = price;
+    }
 }

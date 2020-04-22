@@ -49,9 +49,9 @@ public class User {
 //
 //    }
 
-//    public String getUsername() {
-//        return username;
-//    }
+    public String getUsername() {
+        return username;
+    }
 //
 //    public void setUsername(String username) {
 //        this.username = username;
@@ -80,10 +80,10 @@ public class User {
 //    public void setRealName(String realName) {
 //        this.realName = realName;
 //    }
-//
-//    public String getMobilePhone() {
-//        return mobilePhone;
-//    }
+
+    public String getMobilePhone() {
+        return mobilePhone;
+    }
 //
 //    public void setMobilePhone(String mobilePhone) {
 //        this.mobilePhone = mobilePhone;
