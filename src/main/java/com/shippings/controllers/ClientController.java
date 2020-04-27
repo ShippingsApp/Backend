@@ -102,6 +102,7 @@ public class ClientController {
     public Request getRequest(long ID){
         LOG.info("request request is received");
         Request rqst = RequestRepository.findOneById(ID);
+        if(rqst.getUserFromId()!=getCurrentUserId()){return new Request();}
         return rqst;
     }
 
@@ -110,6 +111,7 @@ public class ClientController {
         LOG.info(String.format("request editing started"));
 
         Request rqst = RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
 
         if(!AddRequest.getPrice().trim().isEmpty()){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
         if(!AddRequest.getComment().trim().isEmpty()){rqst.setComment(AddRequest.getComment());}
@@ -122,7 +124,10 @@ public class ClientController {
     @PostMapping("/deleteRqst")
     public ResponseEntity<?> deleteRequest(@RequestBody AddClientRequest AddRequest) {
         LOG.info(String.format("delete started"));
-        RequestRepository.delete(RequestRepository.getOne(Long.parseLong(AddRequest.getId())));
+        Request rqst=RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        RequestRepository.delete(rqst);
+
         return ResponseEntity.ok(new MessageResponse(" delete suss "));
     }
 

@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -91,11 +92,12 @@ public class DriverController {
         }
 
         log.info(String.format("shipp.size is %d", shipps.size()));
+        SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy");
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
                 put("id", Long.toString(s.getId()));
-                put("date_start", s.getDateStart().toString());
-                put("date_finish", s.getDateFinish().toString());
+                put("date_start", format1.format(s.getDateStart()));
+                put("date_finish", format1.format(s.getDateFinish()));
                 put("start", s.getStart());
                 put("finish", s.getFinish());
                 put("weight", Integer.toString(s.getWeight()));
@@ -114,6 +116,7 @@ public class DriverController {
     public Shipping getRoute(long ID){
         log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
+        if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
         return shipp;
     }
 
@@ -144,10 +147,12 @@ public class DriverController {
 
     @PostMapping("/routedit")
     public ResponseEntity<?> editRouter(@RequestBody AddRoutRequest AddRequest) {
+
         log.info(String.format("shipp editing started"));
 
         Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
         log.info(String.format("ship id"+ship.getId()));
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
         if(!AddRequest.getDateStart().trim().isEmpty()){ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));}
         if(!AddRequest.getDateFinish().trim().isEmpty()){ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));}
         if(!AddRequest.getStart().trim().isEmpty()){ship.setStart(AddRequest.getStart());}
@@ -168,6 +173,7 @@ public class DriverController {
     public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
         log.info(String.format("refuse started"));
         Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
         ship.setStatus(Boolean.TRUE);
         shipRepository.save(ship);
 
@@ -177,7 +183,9 @@ public class DriverController {
     @PostMapping("/deleteShip")
     public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
         log.info(String.format("delete started"));
-        shipRepository.delete(shipRepository.getOne(Long.parseLong(AddRequest.getId())));
+        Shipping ship=shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        shipRepository.delete(ship);
         return ResponseEntity.ok(new MessageResponse(" delete suss "));
     }
 }
