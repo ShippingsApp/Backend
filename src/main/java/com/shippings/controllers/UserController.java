@@ -19,7 +19,7 @@ import java.util.*;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/users")
-@Slf4j
+
 public class UserController {
 
     private final UserService service;
