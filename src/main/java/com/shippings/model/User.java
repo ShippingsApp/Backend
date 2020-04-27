@@ -106,7 +106,7 @@ public class User {
 //    }
 //
 //
-//    public Long getId() {
-//        return this.id;
-//    }
+    public Long getId() {
+        return this.id;
+    }
 }

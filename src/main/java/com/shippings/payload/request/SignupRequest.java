@@ -1,9 +1,7 @@
 package com.shippings.payload.request;
 
 import lombok.Data;
-
 import java.util.Set;
-
 import javax.validation.constraints.*;
 
 @Data
