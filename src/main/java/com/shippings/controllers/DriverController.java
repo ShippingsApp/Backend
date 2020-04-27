@@ -5,6 +5,7 @@ import com.shippings.payload.request.AddRoutRequest;
 import com.shippings.payload.response.MessageResponse;
 import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,10 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/ship")
+@Slf4j
 public class DriverController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(DriverController.class);
     @Autowired
     ShippRepository shipRepository;
 
@@ -39,14 +41,14 @@ public class DriverController {
     @GetMapping("/driver")
     @PreAuthorize("hasAuthority('driver')")
     public List<Map<String, String>> driverAccess(Integer time_per){
-        LOG.info("driver request is received");
+        log.info("driver request is received");
         return getRouteList(Boolean.TRUE, time_per);
     }
 
     @GetMapping("/driverRequest")
     @PreAuthorize("hasAuthority('driver')")
     public List<Map<String, String>> driverRequestAccess() {
-        LOG.info("driver request request is received.");
+        log.info("driver request request is received.");
        return getRouteList(Boolean.FALSE, REQUEST);
     }
 
@@ -88,7 +90,7 @@ public class DriverController {
                 break;
         }
 
-        LOG.info(String.format("shipp.size is %d", shipps.size()));
+        log.info(String.format("shipp.size is %d", shipps.size()));
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
                 put("id", Long.toString(s.getId()));
@@ -110,14 +112,14 @@ public class DriverController {
     @GetMapping("/getRoute")
     @PreAuthorize("hasAuthority('driver')")
     public Shipping getRoute(long ID){
-        LOG.info("router request is received");
+        log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
         return shipp;
     }
 
     @PostMapping("/routeup")
     public ResponseEntity<?> addRouter(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("shipp adding started"));
+        log.info(String.format("shipp adding started"));
 
         Shipping ship = new Shipping();
         ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));
@@ -133,7 +135,7 @@ public class DriverController {
         ship.setStatus(Boolean.TRUE);
         ship.setDriverId(this.getCurrentUserId());
         //ship.setDriverId((long)1);
-        LOG.info(String.format("shipp added"));
+        log.info(String.format("shipp added"));
         shipRepository.save(ship);
 
         return ResponseEntity.ok(new MessageResponse("Ship added successfully!"));
@@ -142,10 +144,10 @@ public class DriverController {
 
     @PostMapping("/routedit")
     public ResponseEntity<?> editRouter(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("shipp editing started"));
+        log.info(String.format("shipp editing started"));
 
         Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        LOG.info(String.format("ship id"+ship.getId()));
+        log.info(String.format("ship id"+ship.getId()));
         if(!AddRequest.getDateStart().trim().isEmpty()){ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));}
         if(!AddRequest.getDateFinish().trim().isEmpty()){ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));}
         if(!AddRequest.getStart().trim().isEmpty()){ship.setStart(AddRequest.getStart());}
@@ -156,7 +158,7 @@ public class DriverController {
         if(!AddRequest.getWidth().trim().isEmpty()){ship.setWidth(Integer.parseInt(AddRequest.getWidth()));}
         if(!AddRequest.getPlusTime().trim().isEmpty()){ship.setPlusTime(Integer.parseInt(AddRequest.getPlusTime()));}
         if(!AddRequest.getComment().trim().isEmpty()){ship.setComment(AddRequest.getComment());}
-        LOG.info(String.format("shipp edited"));
+        log.info(String.format("shipp edited"));
         shipRepository.save(ship);
 
         return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
@@ -164,7 +166,7 @@ public class DriverController {
 
     @PostMapping("/refuseShip")
     public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("refuse started"));
+        log.info(String.format("refuse started"));
         Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
         ship.setStatus(Boolean.TRUE);
         shipRepository.save(ship);
@@ -174,7 +176,7 @@ public class DriverController {
 
     @PostMapping("/deleteShip")
     public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
-        LOG.info(String.format("delete started"));
+        log.info(String.format("delete started"));
         shipRepository.delete(shipRepository.getOne(Long.parseLong(AddRequest.getId())));
         return ResponseEntity.ok(new MessageResponse(" delete suss "));
     }
