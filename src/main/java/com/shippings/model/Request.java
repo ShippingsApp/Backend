@@ -42,7 +42,7 @@ public class Request {
     private String comment;
 
     @Column(name = "status")
-    private boolean status;
+    private int status;
 
     @Column(name = "price")
     private int price;
@@ -101,10 +101,10 @@ public class Request {
     public void setWidth(int width) {
         this.width = width;
     }
-    public boolean isStatus() {
+    public int getStatus() {
         return status;
     }
-    public void setStatus(boolean status) {
+    public void setStatus(int status) {
         this.status = status;
     }
     public String getComment() {

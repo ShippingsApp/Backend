@@ -50,11 +50,11 @@ public class ClientController {
 
     @GetMapping("/clientRequest")
     @PreAuthorize("hasAuthority('client')")
-    public List<Map<String, String>> clientRequest(Boolean editable) {
+    public List<Map<String, String>> clientRequest(Integer status) {
 
     List<Map<String, String>> rqstList = new ArrayList();
         LOG.info(String.format("started"));
-        List<Request> rqst = RequestRepository.findAllByUserFromIdAndStatus(this.getCurrentUserId(), editable);
+        List<Request> rqst = RequestRepository.findAllByUserFromIdAndStatus(this.getCurrentUserId(), status);
         LOG.info(String.format("rqst.size is %d", rqst.size()));
         for (Request r : rqst){
 
@@ -88,7 +88,7 @@ public class ClientController {
         rqst.setWidth(Integer.parseInt(AddRequest.getWidth()));
         rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));
         rqst.setComment(AddRequest.getComment());
-        rqst.setStatus(Boolean.TRUE);
+        rqst.setStatus(0);
         rqst.setUserFromId(this.getCurrentUserId());
         rqst.setShippingId(Long.parseLong(AddRequest.getWeight()));
         LOG.info(String.format("request added"));

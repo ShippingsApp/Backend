@@ -1,5 +1,6 @@
 package com.shippings.controllers;
 
+import com.shippings.model.Request;
 import com.shippings.model.Shipping;
 import com.shippings.payload.request.AddRoutRequest;
 import com.shippings.payload.response.MessageResponse;
@@ -29,6 +30,13 @@ public class DriverController {
     @Autowired
     ShippRepository shipRepository;
 
+    @Autowired
+    RequestRepository rqstRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+
     long getCurrentUserId() {
         UserDetailsImpl user = (UserDetailsImpl)SecurityContextHolder.getContext().getAuthentication().getPrincipal();;
         return user.getId();
@@ -48,9 +56,22 @@ public class DriverController {
 
     @GetMapping("/driverRequest")
     @PreAuthorize("hasAuthority('driver')")
-    public List<Map<String, String>> driverRequestAccess() {
+    public List<Map<String, String>> driverRequestAccess(Integer status) {
         log.info("driver request request is received.");
-       return getRouteList(Boolean.FALSE, REQUEST);
+       return getRouteShippedList(status);
+    }
+
+    List<Map<String, String>> getRouteShippedList(int status){
+
+        List<Shipping> shipps = shipRepository.findAllByDriverIdAndStatusOrderByDateStartDesc(this.getCurrentUserId(), Boolean.FALSE);
+        for (Iterator<Shipping> iter = shipps.listIterator(); iter.hasNext(); ) {
+            Shipping a = iter.next();
+            if (rqstRepository.findAllByShippingIdAndStatus(a.getId(),status).size()==0){
+                iter.remove();
+            }
+        }
+
+        return toListMap(shipps);
     }
 
     List<Map<String, String>> getRouteList(Boolean bool, int time_per){
@@ -87,11 +108,13 @@ public class DriverController {
                     }
                 }
                 break;
-            case(REQUEST):
-                break;
+ }
+    log.info(String.format("shipp.size is %d", shipps.size()));
+        return toListMap(shipps);
         }
 
-        log.info(String.format("shipp.size is %d", shipps.size()));
+    List<Map<String, String>> toListMap(List<Shipping> shipps){
+        List<Map<String, String>> shippList = new ArrayList();
         SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy");
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
@@ -109,6 +132,7 @@ public class DriverController {
             }});
 
         return shippList;
+
     }
 
     @GetMapping("/getRoute")
@@ -118,6 +142,33 @@ public class DriverController {
         Shipping shipp = shipRepository.findOneById(ID);
         if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
         return shipp;
+    }
+
+    @GetMapping("/getShipRequests")
+    @PreAuthorize("hasAuthority('driver')")
+    public List<Map<String, String>> getShipRequests(Long ID, Integer status){
+        log.info("ship requests are received");
+        if(shipRepository.getOne(ID).getDriverId()!=getCurrentUserId()){return null;}
+        List<Map<String, String>> rqstList = new ArrayList();
+        List<Request> rqst = rqstRepository.findAllByShippingIdAndStatus(ID,status);
+        log.info(String.format("rqst.size is %d", rqst.size()));
+
+        for (Request r : rqst)
+            rqstList.add(new HashMap<String, String>(){{
+                put("id", Long.toString(r.getId()));
+                put("start", r.getStart());
+                put("userFromName", userRepository.getOne(r.getUserFromId()).getUsername());
+                put("userFromPhone", userRepository.getOne(r.getUserFromId()).getMobilePhone());
+                put("finish", r.getFinish());
+                put("weight", Integer.toString(r.getWeight()));
+                put("height", Integer.toString(r.getHeight()));
+                put("length", Integer.toString(r.getLength()));
+                put("width", Integer.toString(r.getWidth()));
+                put("comment", r.getComment());
+                put("price", Integer.toString(r.getPrice()));
+            }});
+
+        return rqstList;
     }
 
     @PostMapping("/routeup")
@@ -172,12 +223,30 @@ public class DriverController {
     @PostMapping("/refuseShip")
     public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
         log.info(String.format("refuse started"));
-        Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
+        Shipping ship = shipRepository.getOne(rqst.getShippingId());
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
-        ship.setStatus(Boolean.TRUE);
-        shipRepository.save(ship);
+        rqst.setStatus(-1);
+        rqstRepository.save(rqst);
+
+        if(rqstRepository.findAllByShippingIdAndStatusIsNot(ship.getId(), -1).size()==0){
+            log.info(String.format("no more"));
+            ship.setStatus(Boolean.TRUE);
+            shipRepository.save(ship);
+        };
 
         return ResponseEntity.ok(new MessageResponse(" refuse suss "));
+    }
+
+    @PostMapping("/takeShip")
+    public ResponseEntity<?> takeShip(@RequestBody AddRoutRequest AddRequest) {
+        log.info(String.format("refuse started"));
+        Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
+        Shipping ship = shipRepository.getOne(rqst.getShippingId());
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        rqst.setStatus(1);
+        rqstRepository.save(rqst);
+        return ResponseEntity.ok(new MessageResponse(" taken suss "));
     }
 
     @PostMapping("/deleteShip")
