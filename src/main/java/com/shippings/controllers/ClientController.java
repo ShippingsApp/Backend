@@ -1,31 +1,24 @@
 package com.shippings.controllers;
 
-import com.shippings.model.Request;
-import com.shippings.model.Shipping;
-import com.shippings.model.User;
-import com.shippings.payload.request.AddClientRequest;
-import com.shippings.payload.request.AddRoutRequest;
-import com.shippings.payload.response.MessageResponse;
-import com.shippings.repositories.RequestRepository;
-import com.shippings.repositories.ShippRepository;
-import com.shippings.repositories.UserRepository;
+import com.shippings.model.*;
+import com.shippings.payload.request.*;
+import com.shippings.payload.response.*;
+import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
+@Slf4j
 public class ClientController {
     @Autowired
     RequestRepository RequestRepository;
@@ -35,7 +28,6 @@ public class ClientController {
 
     @Autowired
     UserRepository UserRepository;
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/client")
     @PreAuthorize("hasAuthority('client')")
@@ -53,9 +45,9 @@ public class ClientController {
     public List<Map<String, String>> clientRequest(Integer status) {
 
     List<Map<String, String>> rqstList = new ArrayList();
-        LOG.info(String.format("started"));
+        log.info(String.format("started"));
         List<Request> rqst = RequestRepository.findAllByUserFromIdAndStatus(this.getCurrentUserId(), status);
-        LOG.info(String.format("rqst.size is %d", rqst.size()));
+        log.info(String.format("rqst.size is %d", rqst.size()));
         for (Request r : rqst){
 
             rqstList.add(new HashMap<String, String>(){{
@@ -77,7 +69,7 @@ public class ClientController {
 
     @PostMapping("/requestup")
     public ResponseEntity<?> addRequest(@RequestBody AddClientRequest AddRequest) {
-        LOG.info(String.format("request adding started"));
+        log.info(String.format("request adding started"));
 
         Request rqst = new Request();
         rqst.setStart(AddRequest.getStart());
@@ -91,7 +83,7 @@ public class ClientController {
         rqst.setStatus(0);
         rqst.setUserFromId(this.getCurrentUserId());
         rqst.setShippingId(Long.parseLong(AddRequest.getWeight()));
-        LOG.info(String.format("request added"));
+        log.info(String.format("request added"));
         RequestRepository.save(rqst);
 
         return ResponseEntity.ok(new MessageResponse("Request added successfully!"));
@@ -100,7 +92,7 @@ public class ClientController {
     @GetMapping("/getRequest")
     @PreAuthorize("hasAuthority('client')")
     public Request getRequest(long ID){
-        LOG.info("request request is received");
+        log.info("request request is received");
         Request rqst = RequestRepository.findOneById(ID);
         if(rqst.getUserFromId()!=getCurrentUserId()){return new Request();}
         return rqst;
@@ -108,14 +100,14 @@ public class ClientController {
 
     @PostMapping("/rqstedit")
     public ResponseEntity<?> editRequest(@RequestBody AddClientRequest AddRequest) {
-        LOG.info(String.format("request editing started"));
+        log.info(String.format("request editing started"));
 
         Request rqst = RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
         if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
 
         if(!AddRequest.getPrice().trim().isEmpty()){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
         if(!AddRequest.getComment().trim().isEmpty()){rqst.setComment(AddRequest.getComment());}
-        LOG.info(String.format("request edited"));
+        log.info(String.format("request edited"));
         RequestRepository.save(rqst);
 
         return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
@@ -123,7 +115,7 @@ public class ClientController {
 
     @PostMapping("/deleteRqst")
     public ResponseEntity<?> deleteRequest(@RequestBody AddClientRequest AddRequest) {
-        LOG.info(String.format("delete started"));
+        log.info(String.format("delete started"));
         Request rqst=RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
         if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
         RequestRepository.delete(rqst);

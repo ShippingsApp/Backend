@@ -1,14 +1,12 @@
 package com.shippings.controllers;
 
-import com.shippings.model.Request;
-import com.shippings.model.Shipping;
-import com.shippings.payload.request.AddRoutRequest;
-import com.shippings.payload.response.MessageResponse;
+import com.shippings.model.*;
+import com.shippings.payload.request.*;
+import com.shippings.payload.response.*;
 import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
+
 import java.util.*;
 
 @CrossOrigin(origins = "*")
@@ -26,7 +24,6 @@ import java.util.*;
 @Slf4j
 public class DriverController {
 
-    //private static final Logger LOG = LoggerFactory.getLogger(DriverController.class);
     @Autowired
     ShippRepository shipRepository;
 
@@ -42,7 +39,6 @@ public class DriverController {
         return user.getId();
     }
 
-    public static final int REQUEST=0;
     public static final int PAST=1;
     public static final int PRESENT=2;
     public static final int FUTURE=3;
