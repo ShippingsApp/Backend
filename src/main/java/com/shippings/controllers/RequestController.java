@@ -26,7 +26,7 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
-public class ClientController {
+public class RequestController {
     @Autowired
     RequestRepository RequestRepository;
 
@@ -94,7 +94,7 @@ public class ClientController {
         LOG.info(String.format("request added"));
         RequestRepository.save(rqst);
 
-        return ResponseEntity.ok(new MessageResponse("Request added successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Ваша заявка отправлена водителю!"));
     }
 
     @GetMapping("/getRequest")
