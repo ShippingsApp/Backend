@@ -18,6 +18,7 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
+public class RequestController {
 @Slf4j
 public class ClientController {
     @Autowired
@@ -86,7 +87,7 @@ public class ClientController {
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
 
-        return ResponseEntity.ok(new MessageResponse("Request added successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Ваша заявка отправлена водителю!"));
     }
 
     @GetMapping("/getRequest")

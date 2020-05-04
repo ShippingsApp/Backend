@@ -5,6 +5,7 @@ import com.shippings.payload.request.*;
 import com.shippings.payload.response.*;
 import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
+import com.shippings.services.ShippingService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.*;
@@ -22,10 +24,13 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/ship")
 @Slf4j
-public class DriverController {
+public class ShippingController {
 
     @Autowired
     ShippRepository shipRepository;
+
+    @Autowired
+    ShippingService shippingService;
 
     @Autowired
     RequestRepository rqstRepository;
@@ -132,7 +137,7 @@ public class DriverController {
     }
 
     @GetMapping("/getRoute")
-    @PreAuthorize("hasAuthority('driver')")
+    @PreAuthorize("hasAnyAuthority('driver', 'client')")
     public Shipping getRoute(long ID){
         log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
@@ -188,7 +193,7 @@ public class DriverController {
         log.info(String.format("shipp added"));
         shipRepository.save(ship);
 
-        return ResponseEntity.ok(new MessageResponse("Ship added successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Поездка успешно создана!"));
     }
 
 
@@ -252,5 +257,19 @@ public class DriverController {
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
         shipRepository.delete(ship);
         return ResponseEntity.ok(new MessageResponse(" delete suss "));
+    }
+
+    @GetMapping("/shippingsfiltered")
+    @PreAuthorize("hasAuthority('client')")
+    public ResponseEntity<?> getFilteredShippings(String startPoint, String finishPoint, String startDate, String finishDate,
+                                                  Integer weight, Integer height, Integer width, Integer length) {
+        log.info("Started filtering");
+
+        try {
+            return ResponseEntity.ok(shippingService.getFilteredShippings(startPoint, finishPoint, startDate, finishDate, weight, height, width, length));
+        }
+        catch (ParseException exception) {
+            return ResponseEntity.badRequest().body(new MessageResponse("Error: wrong date format"));
+        }
     }
 }
