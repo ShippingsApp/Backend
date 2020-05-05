@@ -13,14 +13,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Null;
 import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
-public class RequestController {
 @Slf4j
-public class ClientController {
+public class RequestController {
+
+
     @Autowired
     RequestRepository RequestRepository;
 
@@ -83,19 +85,23 @@ public class ClientController {
         rqst.setComment(AddRequest.getComment());
         rqst.setStatus(0);
         rqst.setUserFromId(this.getCurrentUserId());
-        rqst.setShippingId(Long.parseLong(AddRequest.getWeight()));
+        rqst.setShippingId(Long.parseLong(AddRequest.getId()));
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
+        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(ship.getStatus()){
+            ship.setStatus(Boolean.FALSE);
+            ShipRepository.save(ship);
+        };
 
         return ResponseEntity.ok(new MessageResponse("Ваша заявка отправлена водителю!"));
     }
 
     @GetMapping("/getRequest")
-    @PreAuthorize("hasAuthority('client')")
+    //@PreAuthorize("hasAuthority('client')")
     public Request getRequest(long ID){
         log.info("request request is received");
         Request rqst = RequestRepository.findOneById(ID);
-        if(rqst.getUserFromId()!=getCurrentUserId()){return new Request();}
         return rqst;
     }
 
@@ -106,8 +112,14 @@ public class ClientController {
         Request rqst = RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
         if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
 
-        if(!AddRequest.getPrice().trim().isEmpty()){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
-        if(!AddRequest.getComment().trim().isEmpty()){rqst.setComment(AddRequest.getComment());}
+        if(AddRequest.getStart()!= null){rqst.setStart(AddRequest.getStart());}
+        if(AddRequest.getFinish()!= null){rqst.setFinish(AddRequest.getFinish());}
+        if(AddRequest.getWeight()!= null){rqst.setWeight(Integer.parseInt(AddRequest.getWeight()));}
+        if(AddRequest.getHeight()!= null){rqst.setHeight(Integer.parseInt(AddRequest.getHeight()));}
+        if(AddRequest.getLength()!= null){rqst.setLength(Integer.parseInt(AddRequest.getLength()));}
+        if(AddRequest.getWidth()!= null){rqst.setWidth(Integer.parseInt(AddRequest.getWidth()));}
+        if(AddRequest.getPrice()!= null){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
+        if(AddRequest.getComment()!= null){rqst.setComment(AddRequest.getComment());}
         log.info(String.format("request edited"));
         RequestRepository.save(rqst);
 
@@ -125,3 +137,4 @@ public class ClientController {
     }
 
 }
+

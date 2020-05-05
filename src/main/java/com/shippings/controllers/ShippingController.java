@@ -49,7 +49,7 @@ public class ShippingController {
     public static final int FUTURE=3;
 
     @GetMapping("/driver")
-    @PreAuthorize("hasAuthority('driver')")
+ //   @PreAuthorize("hasAuthority('driver')")
     public List<Map<String, String>> driverAccess(Integer time_per){
         log.info("driver request is received");
         return getRouteList(Boolean.TRUE, time_per);
@@ -116,12 +116,12 @@ public class ShippingController {
 
     List<Map<String, String>> toListMap(List<Shipping> shipps){
         List<Map<String, String>> shippList = new ArrayList();
-        SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy");
+
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
                 put("id", Long.toString(s.getId()));
-                put("date_start", format1.format(s.getDateStart()));
-                put("date_finish", format1.format(s.getDateFinish()));
+                put("date_start", s.getDateStart().toString());
+                put("date_finish", s.getDateFinish().toString());
                 put("start", s.getStart());
                 put("finish", s.getFinish());
                 put("weight", Integer.toString(s.getWeight()));
@@ -141,7 +141,7 @@ public class ShippingController {
     public Shipping getRoute(long ID){
         log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
-        if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
+
         return shipp;
     }
 
