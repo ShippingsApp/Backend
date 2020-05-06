@@ -88,7 +88,7 @@ public class RequestController {
         rqst.setShippingId(Long.parseLong(AddRequest.getShipId()));
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
-        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getShipId()));
         if(ship.getStatus()){
             ship.setStatus(Boolean.FALSE);
             ShipRepository.save(ship);
