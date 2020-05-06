@@ -110,7 +110,7 @@ public class RequestController {
         log.info(String.format("request editing started"));
 
         Request rqst = RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
 
         if(AddRequest.getStart()!= null){rqst.setStart(AddRequest.getStart());}
         if(AddRequest.getFinish()!= null){rqst.setFinish(AddRequest.getFinish());}
@@ -123,17 +123,17 @@ public class RequestController {
         log.info(String.format("request edited"));
         RequestRepository.save(rqst);
 
-        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Маршрут исправлен успешно!"));
     }
 
     @PostMapping("/deleteRqst")
     public ResponseEntity<?> deleteRequest(@RequestBody AddClientRequest AddRequest) {
         log.info(String.format("delete started"));
         Request rqst=RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         RequestRepository.delete(rqst);
 
-        return ResponseEntity.ok(new MessageResponse(" delete suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно удалено "));
     }
 
 }

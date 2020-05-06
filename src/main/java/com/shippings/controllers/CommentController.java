@@ -49,7 +49,7 @@ public class CommentController {
 
         commentRepository.save(comm);
 
-        return ResponseEntity.ok(new MessageResponse("Comment added successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Комментарий успешно добавлен!"));
     }
 
     @GetMapping("/getComments")

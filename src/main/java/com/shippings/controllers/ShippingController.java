@@ -218,7 +218,7 @@ public class ShippingController {
         log.info(String.format("shipp edited"));
         shipRepository.save(ship);
 
-        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Маршрут успешно добавлен!"));
     }
 
     @PostMapping("/refuseShip")
@@ -226,7 +226,7 @@ public class ShippingController {
         log.info(String.format("refuse started"));
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         rqst.setStatus(-1);
         rqstRepository.save(rqst);
 
@@ -244,19 +244,19 @@ public class ShippingController {
         log.info(String.format("refuse started"));
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         rqst.setStatus(1);
         rqstRepository.save(rqst);
-        return ResponseEntity.ok(new MessageResponse(" taken suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно принято "));
     }
 
     @PostMapping("/deleteShip")
     public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
         log.info(String.format("delete started"));
         Shipping ship=shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         shipRepository.delete(ship);
-        return ResponseEntity.ok(new MessageResponse(" delete suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно удалено "));
     }
 
     @GetMapping("/shippingsfiltered")
@@ -269,7 +269,7 @@ public class ShippingController {
             return ResponseEntity.ok(shippingService.getFilteredShippings(startPoint, finishPoint, startDate, finishDate, weight, height, width, length));
         }
         catch (ParseException exception) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: wrong date format"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Ошибка: неправильный формат даты"));
         }
     }
 }
