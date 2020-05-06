@@ -85,10 +85,10 @@ public class RequestController {
         rqst.setComment(AddRequest.getComment());
         rqst.setStatus(0);
         rqst.setUserFromId(this.getCurrentUserId());
-        rqst.setShippingId(Long.parseLong(AddRequest.getId()));
+        rqst.setShippingId(Long.parseLong(AddRequest.getShipId()));
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
-        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getShipId()));
         if(ship.getStatus()){
             ship.setStatus(Boolean.FALSE);
             ShipRepository.save(ship);
