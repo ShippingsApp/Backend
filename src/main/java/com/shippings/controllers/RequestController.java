@@ -15,12 +15,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+@Slf4j
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
 public class RequestController {
-@Slf4j
-public class ClientController {
     @Autowired
     RequestRepository RequestRepository;
 
@@ -83,7 +82,7 @@ public class ClientController {
         rqst.setComment(AddRequest.getComment());
         rqst.setStatus(0);
         rqst.setUserFromId(this.getCurrentUserId());
-        rqst.setShippingId(Long.parseLong(AddRequest.getWeight()));
+        rqst.setShippingId(Long.parseLong(AddRequest.getShipId()));
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
 

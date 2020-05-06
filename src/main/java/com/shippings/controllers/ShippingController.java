@@ -141,7 +141,7 @@ public class ShippingController {
     public Shipping getRoute(long ID){
         log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
-        if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
+//        if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
         return shipp;
     }
 
