@@ -13,13 +13,16 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.constraints.Null;
 import java.util.*;
 
-@Slf4j
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/rqst")
+@Slf4j
 public class RequestController {
+
+
     @Autowired
     RequestRepository RequestRepository;
 
@@ -85,16 +88,20 @@ public class RequestController {
         rqst.setShippingId(Long.parseLong(AddRequest.getShipId()));
         log.info(String.format("request added"));
         RequestRepository.save(rqst);
+        Shipping ship=ShipRepository.getOne(Long.parseLong(AddRequest.getId()));
+        if(ship.getStatus()){
+            ship.setStatus(Boolean.FALSE);
+            ShipRepository.save(ship);
+        };
 
         return ResponseEntity.ok(new MessageResponse("Ваша заявка отправлена водителю!"));
     }
 
     @GetMapping("/getRequest")
-    @PreAuthorize("hasAuthority('client')")
+    //@PreAuthorize("hasAuthority('client')")
     public Request getRequest(long ID){
         log.info("request request is received");
         Request rqst = RequestRepository.findOneById(ID);
-        if(rqst.getUserFromId()!=getCurrentUserId()){return new Request();}
         return rqst;
     }
 
@@ -103,24 +110,31 @@ public class RequestController {
         log.info(String.format("request editing started"));
 
         Request rqst = RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
 
-        if(!AddRequest.getPrice().trim().isEmpty()){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
-        if(!AddRequest.getComment().trim().isEmpty()){rqst.setComment(AddRequest.getComment());}
+        if(AddRequest.getStart()!= null){rqst.setStart(AddRequest.getStart());}
+        if(AddRequest.getFinish()!= null){rqst.setFinish(AddRequest.getFinish());}
+        if(AddRequest.getWeight()!= null){rqst.setWeight(Integer.parseInt(AddRequest.getWeight()));}
+        if(AddRequest.getHeight()!= null){rqst.setHeight(Integer.parseInt(AddRequest.getHeight()));}
+        if(AddRequest.getLength()!= null){rqst.setLength(Integer.parseInt(AddRequest.getLength()));}
+        if(AddRequest.getWidth()!= null){rqst.setWidth(Integer.parseInt(AddRequest.getWidth()));}
+        if(AddRequest.getPrice()!= null){rqst.setPrice(Integer.parseInt(AddRequest.getPrice()));}
+        if(AddRequest.getComment()!= null){rqst.setComment(AddRequest.getComment());}
         log.info(String.format("request edited"));
         RequestRepository.save(rqst);
 
-        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Маршрут исправлен успешно!"));
     }
 
     @PostMapping("/deleteRqst")
     public ResponseEntity<?> deleteRequest(@RequestBody AddClientRequest AddRequest) {
         log.info(String.format("delete started"));
         Request rqst=RequestRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(rqst.getUserFromId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         RequestRepository.delete(rqst);
 
-        return ResponseEntity.ok(new MessageResponse(" delete suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно удалено "));
     }
 
 }
+
