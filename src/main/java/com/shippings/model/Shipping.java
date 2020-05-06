@@ -107,7 +107,7 @@ public class Shipping {
     public void setPlusTime(int plusTime) {
         this.plusTime = plusTime;
     }
-    public boolean isStatus() {
+    public boolean getStatus() {
         return status;
     }
     public void setStatus(boolean status) {
@@ -131,4 +131,5 @@ public class Shipping {
     public void setDateFinish(Date dateFinish) {
         this.dateFinish = dateFinish;
     }
+
 }

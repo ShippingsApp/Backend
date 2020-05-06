@@ -26,6 +26,9 @@ public class CommentController {
     ShippRepository shipRepository;
 
     @Autowired
+    UserRepository userRepository;
+
+    @Autowired
     CommentRepository commentRepository;
 
     long getCurrentUserId() {
@@ -46,7 +49,57 @@ public class CommentController {
 
         commentRepository.save(comm);
 
-        return ResponseEntity.ok(new MessageResponse("Comment added successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Комментарий успешно добавлен!"));
+    }
+
+    @GetMapping("/getComments")
+    public List<Map<String, String>> getComments(String driverName) {
+        log.info(String.format("comments"));
+        List<Comment> comm = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
+        log.info(String.format("comm.size is %d", comm.size()));
+        List<Map<String, String>> commList = new ArrayList();
+
+        for (Comment c : comm){
+            commList.add(new HashMap<String, String>(){{
+                put("nameFrom", userRepository.getOne(c.getIdFrom()).getUsername());
+                put("rate", rateToString(c.getRate()));
+                put("comment", c.getComment());
+                put("date", c.getDate().toString());
+            }});}
+    return commList;
+    }
+
+    String rateToString(int rt){
+        String rate="";
+        switch (rt){
+            case(5):
+                rate="Превосходно";
+                break;
+            case(4):
+                rate="Хорошо";
+                break;
+            case(3):
+                rate="Нормально";
+                break;
+            case(2):
+                rate="Плохо";
+                break;
+            case(1):
+                rate="Ужасно";
+                break;
+        }
+        return rate;
+    }
+
+    @GetMapping("/getRate")
+    public float getRate(String driverName){
+        log.info(String.format("rate"));
+        List<Comment> comm = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
+        if(comm.size()==0) return 2.5f;
+        log.info(String.format("comm.size is %d", comm.size()));
+        float average=0;
+        for (Comment c : comm){average+=c.getRate();}
+        return average/comm.size();
     }
 
 }

@@ -20,7 +20,6 @@ public class ShippingService {
     public List<Shipping> getFilteredShippings(String startPoint, String finishPoint, String startDate, String finishDate,
                                                Integer weight, Integer height, Integer width, Integer length) throws ParseException {
 
-
         StringBuilder queryString = new StringBuilder();
         queryString.append("select sh from Shipping sh where ");
         queryString.append("(sh.start = '" + startPoint + " ' or sh.finish = '" + finishPoint + " ' or sh.start ='" + finishPoint + " ' or sh.finish ='" + startPoint + " ')");

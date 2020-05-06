@@ -49,7 +49,7 @@ public class ShippingController {
     public static final int FUTURE=3;
 
     @GetMapping("/driver")
-    @PreAuthorize("hasAuthority('driver')")
+ //   @PreAuthorize("hasAuthority('driver')")
     public List<Map<String, String>> driverAccess(Integer time_per){
         log.info("driver request is received");
         return getRouteList(Boolean.TRUE, time_per);
@@ -116,12 +116,12 @@ public class ShippingController {
 
     List<Map<String, String>> toListMap(List<Shipping> shipps){
         List<Map<String, String>> shippList = new ArrayList();
-        SimpleDateFormat format1 = new SimpleDateFormat("dd.MM.yyyy");
+
         for (Shipping s : shipps)
             shippList.add(new HashMap<String, String>(){{
                 put("id", Long.toString(s.getId()));
-                put("date_start", format1.format(s.getDateStart()));
-                put("date_finish", format1.format(s.getDateFinish()));
+                put("date_start", s.getDateStart().toString());
+                put("date_finish", s.getDateFinish().toString());
                 put("start", s.getStart());
                 put("finish", s.getFinish());
                 put("weight", Integer.toString(s.getWeight()));
@@ -141,7 +141,7 @@ public class ShippingController {
     public Shipping getRoute(long ID){
         log.info("router request is received");
         Shipping shipp = shipRepository.findOneById(ID);
-        if(shipp.getDriverId()!=getCurrentUserId()){return new Shipping();}
+
         return shipp;
     }
 
@@ -218,7 +218,7 @@ public class ShippingController {
         log.info(String.format("shipp edited"));
         shipRepository.save(ship);
 
-        return ResponseEntity.ok(new MessageResponse("Ship edited successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Маршрут успешно добавлен!"));
     }
 
     @PostMapping("/refuseShip")
@@ -226,7 +226,7 @@ public class ShippingController {
         log.info(String.format("refuse started"));
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         rqst.setStatus(-1);
         rqstRepository.save(rqst);
 
@@ -244,19 +244,19 @@ public class ShippingController {
         log.info(String.format("refuse started"));
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         rqst.setStatus(1);
         rqstRepository.save(rqst);
-        return ResponseEntity.ok(new MessageResponse(" taken suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно принято "));
     }
 
     @PostMapping("/deleteShip")
     public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
         log.info(String.format("delete started"));
         Shipping ship=shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
+        if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         shipRepository.delete(ship);
-        return ResponseEntity.ok(new MessageResponse(" delete suss "));
+        return ResponseEntity.ok(new MessageResponse(" Успешно удалено "));
     }
 
     @GetMapping("/shippingsfiltered")
@@ -269,7 +269,7 @@ public class ShippingController {
             return ResponseEntity.ok(shippingService.getFilteredShippings(startPoint, finishPoint, startDate, finishDate, weight, height, width, length));
         }
         catch (ParseException exception) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error: wrong date format"));
+            return ResponseEntity.badRequest().body(new MessageResponse("Ошибка: неправильный формат даты"));
         }
     }
 }
