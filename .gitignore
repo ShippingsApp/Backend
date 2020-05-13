@@ -1,10 +1,26 @@
-HELP.md
-target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**
-!**/src/test/**
+#Compiled class file
+.class
 
-### STS ###
+# Log file
+.log
+
+# Package files
+*.jar
+*.war
+*.zip
+*.nar
+*.tar.gz
+*.rar
+*.ear
+
+# virtual machine crash logs
+hs_err_pid*
+
+# maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Spring tool suite
 .apt_generated
 .classpath
 .factorypath
@@ -13,13 +29,13 @@ target/
 .springBeans
 .sts4-cache
 
-### IntelliJ IDEA ###
+# IntelliJ IDEA
 .idea
 *.iws
 *.iml
 *.ipr
 
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -27,5 +43,5 @@ target/
 /.nb-gradle/
 build/
 
-### VS Code ###
+# VS Code
 .vscode/

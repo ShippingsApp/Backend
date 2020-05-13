@@ -1,6 +1,7 @@
 package com.shippings.services;
 
 import com.shippings.model.Shipping;
+import lombok.var;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityManager;
@@ -20,7 +21,8 @@ public class ShippingService {
     public List<Shipping> getFilteredShippings(String startPoint, String finishPoint, String startDate, String finishDate,
                                                Integer weight, Integer height, Integer width, Integer length) throws ParseException {
 
-        StringBuilder queryString = new StringBuilder();
+
+        var queryString = new StringBuilder();
         queryString.append("select sh from Shipping sh where ");
         queryString.append("(sh.start = '" + startPoint + " ' or sh.finish = '" + finishPoint + " ' or sh.start ='" + finishPoint + " ' or sh.finish ='" + startPoint + " ')");
 

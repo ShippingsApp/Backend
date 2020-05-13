@@ -64,7 +64,7 @@ public class AuthController {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse("Error: Username is already taken!"));
+                    .body(new MessageResponse("Ошибка: это имя уже занято."));
         }
 
         User user = new User();
@@ -78,7 +78,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+        return ResponseEntity.ok(new MessageResponse("Пользователь успешно зарегистрирован!"));
     }
 }
 
