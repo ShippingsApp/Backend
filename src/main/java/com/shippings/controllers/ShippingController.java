@@ -263,7 +263,6 @@ public class ShippingController {
     @PreAuthorize("hasAuthority('client')")
     public ResponseEntity<?> getFilteredShippings(String startPoint, String finishPoint, String startDate, String finishDate,
                                                   Integer weight, Integer height, Integer width, Integer length) {
-        log.info("Started filtering");
 
         try {
             return ResponseEntity.ok(shippingService.getFilteredShippings(startPoint, finishPoint, startDate, finishDate, weight, height, width, length));

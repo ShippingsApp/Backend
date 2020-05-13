@@ -6,8 +6,6 @@ import com.shippings.payload.response.MessageResponse;
 import com.shippings.security.services.UserDetailsImpl;
 import com.shippings.services.UserService;
 
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -36,19 +34,15 @@ public class UserController {
         if (((UserDetailsImpl) authentication.getPrincipal()).getUsername().equals(username)) {
 
             User user = service.getByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
-            if (patch.getRealName() != null) {
-                user.setRealName(patch.getRealName());
-            }
-            if (patch.getMobilePhone() != null) {
-                user.setMobilePhone(patch.getMobilePhone());
-            }
+                    .orElseThrow(() -> new UsernameNotFoundException("Пользователь с данным никнеймом не найден: " + username));
+            Optional.of(patch.getRealName()).ifPresent(patchUsername -> user.setRealName(patchUsername));
+            Optional.of(patch.getMobilePhone()).ifPresent(patchMobilePhone -> user.setRealName(patchMobilePhone));
 
             service.save(user);
-            return ResponseEntity.ok(new MessageResponse("Changes saved"));
+            return ResponseEntity.ok(new MessageResponse("Изменения сохранены"));
         }
         else
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Access denied"));
+                    .body(new MessageResponse("В доступе отказано"));
     }
 }
