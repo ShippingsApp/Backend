@@ -6,10 +6,8 @@ import com.shippings.payload.response.*;
 import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +17,6 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/comm")
-@Slf4j
 public class CommentController {
 
     @Autowired
@@ -37,29 +34,26 @@ public class CommentController {
     }
 
     @PostMapping("/commentup")
-    public ResponseEntity<?> addComment(@RequestBody AddCommentRequest AddRequest) {
-        log.info(String.format("comment adding started"));
+    public ResponseEntity<?> addComment(@RequestBody final AddCommentRequest AddRequest) {
 
-        Comment comm = new Comment();
-        comm.setIdFrom(getCurrentUserId());
-        comm.setIdAbout(shipRepository.getOne(Long.parseLong(AddRequest.getId())).getDriverId());
-        comm.setComment(AddRequest.getComment());
-        comm.setRate(Integer.parseInt(AddRequest.getRate()));
-        comm.setDate(new Date((new java.util.Date()).getTime()));
+        Comment comment = new Comment();
+        comment.setIdFrom(getCurrentUserId());
+        comment.setIdAbout(shipRepository.getOne(Long.parseLong(AddRequest.getId())).getDriverId());
+        comment.setComment(AddRequest.getComment());
+        comment.setRate(Integer.parseInt(AddRequest.getRate()));
+        comment.setDate(new Date((new java.util.Date()).getTime()));
 
-        commentRepository.save(comm);
+        commentRepository.save(comment);
 
         return ResponseEntity.ok(new MessageResponse("Комментарий успешно добавлен!"));
     }
 
     @GetMapping("/getComments")
-    public List<Map<String, String>> getComments(String driverName) {
-        log.info(String.format("comments"));
-        List<Comment> comm = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
-        log.info(String.format("comm.size is %d", comm.size()));
-        List<Map<String, String>> commList = new ArrayList();
+    public List<Map<String, String>> getComments(final String driverName) {
+        List<Comment> comments = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
+         List<Map<String, String>> commList = new ArrayList();
 
-        for (Comment c : comm){
+        for (Comment c : comments){
             commList.add(new HashMap<String, String>(){{
                 put("nameFrom", userRepository.getOne(c.getIdFrom()).getUsername());
                 put("rate", rateToString(c.getRate()));
@@ -69,22 +63,28 @@ public class CommentController {
     return commList;
     }
 
-    String rateToString(int rt){
+    public static final int PERFECT=5;
+    public static final int GOOD=4;
+    public static final int NORMAL=3;
+    public static final int BAD=2;
+    public static final int HORRIBLE=1;
+
+    String rateToString(final int rt){
         String rate="";
         switch (rt){
-            case(5):
+            case(PERFECT):
                 rate="Превосходно";
                 break;
-            case(4):
+            case(GOOD):
                 rate="Хорошо";
                 break;
-            case(3):
+            case(NORMAL):
                 rate="Нормально";
                 break;
-            case(2):
+            case(BAD):
                 rate="Плохо";
                 break;
-            case(1):
+            case(HORRIBLE):
                 rate="Ужасно";
                 break;
         }
@@ -92,14 +92,11 @@ public class CommentController {
     }
 
     @GetMapping("/getRate")
-    public float getRate(String driverName){
-        log.info(String.format("rate"));
-        List<Comment> comm = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
-        if(comm.size()==0) return 2.5f;
-        log.info(String.format("comm.size is %d", comm.size()));
+    public float getRate(final String driverName){
+        List<Comment> comments = commentRepository.findAllByIdAboutOrderByDateDesc(userRepository.getOneByUsername(driverName).getId());
+        if(comments.size()==0) return 2.5f;
         float average=0;
-        for (Comment c : comm){average+=c.getRate();}
-        return average/comm.size();
+        for (Comment c : comments){average+=c.getRate();}
+        return average/comments.size();
     }
-
 }
