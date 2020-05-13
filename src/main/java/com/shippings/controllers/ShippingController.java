@@ -6,7 +6,6 @@ import com.shippings.payload.response.*;
 import com.shippings.repositories.*;
 import com.shippings.security.services.UserDetailsImpl;
 import com.shippings.services.ShippingService;
-import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +15,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import java.util.*;
 
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/ship")
-@Slf4j
 public class ShippingController {
 
     @Autowired
@@ -49,20 +46,17 @@ public class ShippingController {
     public static final int FUTURE=3;
 
     @GetMapping("/driver")
- //   @PreAuthorize("hasAuthority('driver')")
-    public List<Map<String, String>> driverAccess(Integer time_per){
-        log.info("driver request is received");
+     public List<Map<String, String>> driverAccess(final Integer time_per){
         return getRouteList(Boolean.TRUE, time_per);
     }
 
     @GetMapping("/driverRequest")
     @PreAuthorize("hasAuthority('driver')")
-    public List<Map<String, String>> driverRequestAccess(Integer status) {
-        log.info("driver request request is received.");
+    public List<Map<String, String>> driverRequestAccess(final Integer status) {
        return getRouteShippedList(status);
     }
 
-    List<Map<String, String>> getRouteShippedList(int status){
+    List<Map<String, String>> getRouteShippedList(final int status){
 
         List<Shipping> shipps = shipRepository.findAllByDriverIdAndStatusOrderByDateStartDesc(this.getCurrentUserId(), Boolean.FALSE);
         for (Iterator<Shipping> iter = shipps.listIterator(); iter.hasNext(); ) {
@@ -75,7 +69,7 @@ public class ShippingController {
         return toListMap(shipps);
     }
 
-    List<Map<String, String>> getRouteList(Boolean bool, int time_per){
+    List<Map<String, String>> getRouteList(final Boolean bool, final int time_per){
         List<Map<String, String>> shippList = new ArrayList();
         List<Shipping> shipps = shipRepository.findAllByDriverIdAndStatusOrderByDateStartDesc(this.getCurrentUserId(), bool);
 
@@ -110,7 +104,6 @@ public class ShippingController {
                 }
                 break;
  }
-    log.info(String.format("shipp.size is %d", shipps.size()));
         return toListMap(shipps);
         }
 
@@ -138,21 +131,18 @@ public class ShippingController {
 
     @GetMapping("/getRoute")
     @PreAuthorize("hasAnyAuthority('driver', 'client')")
-    public Shipping getRoute(long ID){
-        log.info("router request is received");
-        Shipping shipp = shipRepository.findOneById(ID);
+    public Shipping getRoute( final long ID){
+       Shipping shipp = shipRepository.findOneById(ID);
 
         return shipp;
     }
 
     @GetMapping("/getShipRequests")
     @PreAuthorize("hasAuthority('driver')")
-    public List<Map<String, String>> getShipRequests(Long ID, Integer status){
-        log.info("ship requests are received");
+    public List<Map<String, String>> getShipRequests(final Long ID, final Integer status){
         if(shipRepository.getOne(ID).getDriverId()!=getCurrentUserId()){return null;}
         List<Map<String, String>> rqstList = new ArrayList();
         List<Request> rqst = rqstRepository.findAllByShippingIdAndStatus(ID,status);
-        log.info(String.format("rqst.size is %d", rqst.size()));
 
         for (Request r : rqst)
             rqstList.add(new HashMap<String, String>(){{
@@ -173,8 +163,7 @@ public class ShippingController {
     }
 
     @PostMapping("/routeup")
-    public ResponseEntity<?> addRouter(@RequestBody AddRoutRequest AddRequest) {
-        log.info(String.format("shipp adding started"));
+    public ResponseEntity<?> addRouter(@RequestBody final AddRoutRequest AddRequest) {
 
         Shipping ship = new Shipping();
         ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));
@@ -189,41 +178,34 @@ public class ShippingController {
         ship.setComment(AddRequest.getComment());
         ship.setStatus(Boolean.TRUE);
         ship.setDriverId(this.getCurrentUserId());
-        //ship.setDriverId((long)1);
-        log.info(String.format("shipp added"));
         shipRepository.save(ship);
 
         return ResponseEntity.ok(new MessageResponse("Поездка успешно создана!"));
     }
 
-
     @PostMapping("/routedit")
-    public ResponseEntity<?> editRouter(@RequestBody AddRoutRequest AddRequest) {
-
-        log.info(String.format("shipp editing started"));
+    public ResponseEntity<?> editRouter(@RequestBody final AddRoutRequest AddRequest) {
 
         Shipping ship = shipRepository.getOne(Long.parseLong(AddRequest.getId()));
-        log.info(String.format("ship id"+ship.getId()));
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("You don't have access!"));}
-        if(!AddRequest.getDateStart().trim().isEmpty()){ship.setDateStart(Date.valueOf(AddRequest.getDateStart()));}
-        if(!AddRequest.getDateFinish().trim().isEmpty()){ship.setDateFinish(Date.valueOf(AddRequest.getDateFinish()));}
-        if(!AddRequest.getStart().trim().isEmpty()){ship.setStart(AddRequest.getStart());}
-        if(!AddRequest.getFinish().trim().isEmpty()){ship.setFinish(AddRequest.getFinish());}
-        if(!AddRequest.getWeight().trim().isEmpty()){ship.setWeight(Integer.parseInt(AddRequest.getWeight()));}
-        if(!AddRequest.getHeight().trim().isEmpty()){ship.setHeight(Integer.parseInt(AddRequest.getHeight()));}
-        if(!AddRequest.getLength().trim().isEmpty()){ship.setLength(Integer.parseInt(AddRequest.getLength()));}
-        if(!AddRequest.getWidth().trim().isEmpty()){ship.setWidth(Integer.parseInt(AddRequest.getWidth()));}
-        if(!AddRequest.getPlusTime().trim().isEmpty()){ship.setPlusTime(Integer.parseInt(AddRequest.getPlusTime()));}
-        if(!AddRequest.getComment().trim().isEmpty()){ship.setComment(AddRequest.getComment());}
-        log.info(String.format("shipp edited"));
+        Optional.ofNullable(AddRequest.getDateStart()).ifPresent(val -> ship.setDateStart(Date.valueOf(val)));
+        Optional.ofNullable(AddRequest.getDateFinish()).ifPresent(val -> ship.setDateFinish(Date.valueOf(val)));
+        Optional.ofNullable(AddRequest.getStart()).ifPresent(val -> ship.setStart(val));
+        Optional.ofNullable(AddRequest.getFinish()).ifPresent(val -> ship.setFinish(val));
+        Optional.ofNullable(AddRequest.getFinish()).ifPresent(val -> ship.setFinish(val));
+        Optional.ofNullable(AddRequest.getWeight()).ifPresent(val -> ship.setWeight(Integer.parseInt(val)));
+        Optional.ofNullable(AddRequest.getHeight()).ifPresent(val -> ship.setHeight(Integer.parseInt(val)));
+        Optional.ofNullable(AddRequest.getLength()).ifPresent(val -> ship.setLength(Integer.parseInt(val)));
+        Optional.ofNullable(AddRequest.getWidth()).ifPresent(val -> ship.setWidth(Integer.parseInt(val)));
+        Optional.ofNullable(AddRequest.getPlusTime()).ifPresent(val -> ship.setPlusTime(Integer.parseInt(val)));
+        Optional.ofNullable(AddRequest.getComment()).ifPresent(val -> ship.setComment(val));
         shipRepository.save(ship);
 
         return ResponseEntity.ok(new MessageResponse("Маршрут успешно добавлен!"));
     }
 
     @PostMapping("/refuseShip")
-    public ResponseEntity<?> refuseShip(@RequestBody AddRoutRequest AddRequest) {
-        log.info(String.format("refuse started"));
+    public ResponseEntity<?> refuseShip(@RequestBody final AddRoutRequest AddRequest) {
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
@@ -231,7 +213,6 @@ public class ShippingController {
         rqstRepository.save(rqst);
 
         if(rqstRepository.findAllByShippingIdAndStatusIsNot(ship.getId(), -1).size()==0){
-            log.info(String.format("no more"));
             ship.setStatus(Boolean.TRUE);
             shipRepository.save(ship);
         };
@@ -240,8 +221,7 @@ public class ShippingController {
     }
 
     @PostMapping("/takeShip")
-    public ResponseEntity<?> takeShip(@RequestBody AddRoutRequest AddRequest) {
-        log.info(String.format("refuse started"));
+    public ResponseEntity<?> takeShip(@RequestBody final AddRoutRequest AddRequest) {
         Request rqst = rqstRepository.getOne(Long.parseLong(AddRequest.getId()));
         Shipping ship = shipRepository.getOne(rqst.getShippingId());
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
@@ -251,8 +231,7 @@ public class ShippingController {
     }
 
     @PostMapping("/deleteShip")
-    public ResponseEntity<?> deleteShip(@RequestBody AddRoutRequest AddRequest) {
-        log.info(String.format("delete started"));
+    public ResponseEntity<?> deleteShip(@RequestBody final AddRoutRequest AddRequest) {
         Shipping ship=shipRepository.getOne(Long.parseLong(AddRequest.getId()));
         if(ship.getDriverId()!=getCurrentUserId()){return ResponseEntity.ok(new MessageResponse("В доступе отказано!"));}
         shipRepository.delete(ship);
@@ -263,7 +242,6 @@ public class ShippingController {
     @PreAuthorize("hasAuthority('client')")
     public ResponseEntity<?> getFilteredShippings(String startPoint, String finishPoint, String startDate, String finishDate,
                                                   Integer weight, Integer height, Integer width, Integer length) {
-        log.info("Started filtering");
 
         try {
             return ResponseEntity.ok(shippingService.getFilteredShippings(startPoint, finishPoint, startDate, finishDate, weight, height, width, length));
